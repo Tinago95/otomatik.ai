@@ -1,0 +1,70 @@
+"use client";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { SubmitHandler } from 'react-hook-form';
+import type { AgentDetailData, Voice, Credential } from '@/app/types';
+import AgentForm from '@/components/forms/agents/AgentForm';
+
+// Mock Voices (replace with actual fetch)
+const availableVoices: Voice[] = [
+  { id: 'voice1', name: 'Rachel', description: 'Professional female voice' },
+  { id: 'voice2', name: 'Michael', description: 'Professional male voice' },
+  { id: 'voice3', name: 'Sarah', description: 'Friendly female voice' },
+];
+
+// Mock Credentials (replace with actual fetch)
+const availableCredentials: Credential[] = [
+  { id: 'cred1', name: 'OpenAI API Key', type: 'api_key', description: 'Used for agent completions and embeddings', createdAt: '2025-03-15T10:00:00Z' },
+  { id: 'cred2', name: 'CRM API Token', type: 'bearer_token', description: 'For customer data lookup', createdAt: '2025-03-20T14:30:00Z' },
+  { id: 'cred3', name: 'Database Credentials', type: 'basic_auth', description: 'Read-only access to analytics database', createdAt: '2025-03-25T11:15:00Z' },
+];
+
+export default function NewAgentPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit: SubmitHandler<Partial<AgentDetailData>> = async (data) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      console.log("Creating new agent:", data);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate a mock ID for the new agent
+      const newAgentId = `agent${Math.floor(Math.random() * 1000)}`;
+      
+      console.log("Agent created successfully with ID:", newAgentId);
+      
+      // Redirect to the agent configuration page
+      router.push(`/agents/${newAgentId}`);
+    } catch (err) {
+      console.error("Error creating agent:", err);
+      setError("Failed to create agent. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
+          <strong className="font-bold mr-2">Error:</strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+      
+      <AgentForm
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        availableVoices={availableVoices}
+        availableCredentials={availableCredentials}
+        isNewAgent={true}
+      />
+    </div>
+  );
+}
