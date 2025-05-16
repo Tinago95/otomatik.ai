@@ -13,22 +13,32 @@ export default function NewFunctionPage() {
   // This is where you'll integrate with your API
   const handleCreateFunction = async (data: FunctionFormData) => {
     console.log("Creating function with data:", data);
-    // --- TODO: Replace with actual API call ---
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-      const fakeNewId = `fn-${Date.now()}`; // Get actual ID from API response
-      console.log("Function created successfully! ID:", fakeNewId);
+      const response = await fetch('/api/functions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to create function: ${response.statusText}`);
+      }
+
+      const newFunction = await response.json();
+      console.log("Function created successfully! ID:", newFunction.id);
+      
       // Redirect to the function detail/edit page after successful creation
-       router.push(`/functions/${fakeNewId}`); // Adjust route as needed
-       // You might want to show a success toast here before redirecting
+      router.push(`/functions/${newFunction.id}`);
+      
     } catch (error) {
       console.error("Failed to create function:", error);
-      // TODO: Display an error message to the user (e.g., using a toast library)
-       alert(`Error creating function: ${error instanceof Error ? error.message : 'Unknown error'}`);
-       // Re-throw the error if FunctionForm needs to know about it to stop isSubmitting state
-       throw error;
+      alert(`Error creating function: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error;
     }
-    // --- End of API call simulation ---
   };
 
   return (
